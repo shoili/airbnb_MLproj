@@ -1,0 +1,116 @@
+---
+title: "EDA"
+author: "shoili"
+date: "April 8, 2017"
+output: pdf_document
+---
+
+```{r, message=FALSE}
+setwd("~/Documents/airbnb_MLproj")
+library(dplyr)
+library(lubridate)
+```
+
+This document takes a look at the dataset. Makes the necessary joins and outlines steps to be taken for feature generation before the prediction model is built. 
+
+```{r}
+# read data
+calendar <- read.csv("calendar.csv", strip.white = T, stringsAsFactors = F)
+head(calendar)
+listings <- read.csv("listings.csv", strip.white = T, stringsAsFactors = F)
+# head(listings)
+reviews <- read.csv("reviews.csv", strip.white = T, stringsAsFactors = F)
+# head(reviews)
+```
+
+Calendar contains the prices for all available days so we strip out the unavailable days data. We then convert the price to a number from a character field. 
+
+```{r}
+# clean calendar table
+table(calendar$available)
+
+available_listings <- calendar %>%
+  filter(available == "t")
+
+available_listings$price_num <- as.numeric(sub("\\$","", available_listings$price))
+summary(available_listings$price_num)
+
+available_listings <- available_listings[!is.na(available_listings$price_num), ]
+
+rm(calendar)
+```
+Just read in available_listings.csv from now on instead of calendar. 
+This file has 2898 unique listings. The dates of the listings range from 2016-09-06 to 2017-09-05. We need to generate what month/week of year the listing is for to identify seasonal trends. (done)
+
+```{r}
+available_listings <- available_listings %>%
+  mutate(month = month(date), week = isoweek(date))
+
+write.csv(available_listings, file = "available_listings.csv")
+```
+
+The new field 'price_num' is the response variable for our model. Now we need to join the data from listings and reviews. Taking a look at the data contained in these. 
+
+```{r}
+colnames(listings)
+# head(listings)
+```
+
+After feature generation, join listings with available_listings by columns 'id' and 'listing_id'. 
+
+Possible features - 
+
+1. listing_url remove
+2. scrape_id, last_scrape remove
+3. name, summary, space, description. ??
+4. experiences offered seems all None so remove. 
+5. neighborhood overview, notes, access, interation ??
+6. transit. 1/0 for field empty or no? not empty probably means easy access to public transit. (check this assumption)
+7. house rules. no smoking check as feature?
+8. thumbnail, picture etc url. 1/0 feature. if no picture that's probably bad
+9. host_id. retain this i guess some hosts suck
+10. host location and name prolly not important
+11. host_about ??
+12. host_response_time. "N/A"                "within an hour"     "within a few hours" "within a day"       "a few days or more" convert values into categorical numeric variable
+13. host_acceptance_rate, host_response_rate. turn into numeric. 
+14. host_is_superhost. convert t/f to 1/0
+15. more urls. 1/0 for exist or no?
+16. host_neighborhood. meh
+17. host_listings_count and next column are same. 
+18. host_verifications. put count?
+19. host profile pic and identity verified convert to numeric from t/f
+20. street ??
+21. neighborhood cleaned. dont use neighborhood. numeric encode?
+22. city state zipcode country lat long
+23. property_type and room_type. convert to numeric categorical variable
+24. accomodates bathrooms bedrooms beds keep as is. (numeric)
+25. bed_type. categorical numeric
+26. amenities. 1/0 for internet, cable etc
+27. square feet. keep as is numeric
+28. remove all the prices and keep as possible alternate responses probably
+29. min/max night
+30. requires license, instant bookable, require guest things. convert all to 1/0 from t/f
+31. cancellation policy. convert to numeric categorical
+32 review_Scores_* check what these mean
+
+```{r}
+colnames(reviews)
+```
+Reviews can also be joined to available_listings by listing_id. 
+
+Possible features - 
+
+1. Number of reviews a listing has. (done)
+2. Avg length of review. (chars done. also have words?)
+3. Avg sentiment of review.
+4. fraction of reviews positive
+5. fraction of reviews negative
+
+```{r}
+review_features <- reviews %>%
+  mutate(reviewlen = nchar(comments)) %>%
+  group_by(listing_id) %>%
+  mutate(reviewcount = n(), avgreviewlen = round(mean(reviewlen)))
+```
+
+Need to train sentiment analysis. Use python maybe?
