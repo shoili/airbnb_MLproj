@@ -1,0 +1,19 @@
+---
+title: "Work Dicision"
+author: "shoili"
+date: "April 19, 2017"
+output: pdf_document
+---
+
+Steven 
+1. converting all t/f to 1 0. 
+points - 6, 8, 14-20, 26, 30
+
+Parit
+2. doing all the 5 features for reviews.csv
+
+Naveed
+1, 2, 4, 8, 9, 10, 11, 32
+
+Shoili 
+12, 13, 21-25, 31, 27-29
