@@ -1,0 +1,14 @@
+listings <- subset(listings, select = -c(listing_url))
+listings <- subset(listings, select = -c(scrape_id))
+listings <- subset(listings, select = -c(last_scraped))
+listings <- subset(listings, select = -c(experiences_offered))
+listings <- subset(listings, select = -c(host_location))
+listings <- subset(listings, select = -c(host_name))
+
+for (i in 1:length(listings$thumbnail_url)) {if (is.na(listings$thumbnail_url[i])) {listings$thumbnail_url[i] = 0} else {listings$thumbnail_url[i] = 1}}
+for (i in 1:length(listings$medium_url)) {if (is.na(listings$medium_url[i])) {listings$medium_url[i] = 0} else {listings$medium_url[i] = 1}}
+for (i in 1:length(listings$picture_url)) {if (is.na(listings$picture_url[i])) {listings$picture_url[i] = 0} else {listings$picture_url[i] = 1}}
+for (i in 1:length(listings$xl_picture_url)) {if (is.na(listings$xl_picture_url[i])) {listings$xl_picture_url[i] = 0} else {listings$xl_picture_url[i] = 1}}
+for (i in 1:length(listings$host_url)) {if (is.na(listings$host_url[i])) {listings$host_url[i] = 0} else {listings$host_url[i] = 1}}
+for (i in 1:length(listings$host_thumbnail_url)) {if (is.na(listings$host_thumbnail_url[i])) {listings$host_thumbnail_url[i] = 0} else {listings$host_thumbnail_url[i] = 1}}
+for (i in 1:length(listings$host_picture_url)) {if (is.na(listings$host_picture_url[i])) {listings$host_picture_url[i] = 0} else {listings$host_picture_url[i] = 1}}
