@@ -1,4 +1,5 @@
-setwd("~/Documents/airbnb_MLproj")
+#setwd('Documents/Georgia_Tech/Spring_2017/CSE_6740/airbnb/')
+#setwd('/Users/Stevenstuff/airbnb_MLproj/')
 library(dplyr)
 
 # read data
@@ -77,8 +78,7 @@ for(i in 1:length(amen_list)){
 listings$amenities_list <- amen_list
 
 # 43 total amenities across all the listings
-unique(unlist(amen_list))
-listings$amenities_list <- amen_list
+all_amenities <- unique(unlist(amen_list))
 
 # amenity counts for each listing
 amenity_counts = c()
@@ -89,3 +89,26 @@ for(i in 1:length(amen_list)){
 listings$amenity_counts <- amenity_counts
 
 ## make 0/1 variables for each of the 43 amenities ## 
+amen_cat <- as.data.frame(matrix(0, ncol=length(all_amenities), nrow=length(amen_list)))
+names(amen_cat) <- all_amenities
+for(i in 1:dim(amen_cat)[2]){
+  for(j in 1:dim(amen_cat)[1]){
+    if(all_amenities[i] %in% amen_list[[j]]){
+      amen_cat[j,i] <- 1
+    }
+  }
+}
+
+############# final listings.csv with every amenity as 1/0, 
+############# all other t/f converted to 1/0
+############# columns is 106 + 43 = 149 for the 43 amenities
+amenities_listings <- cbind(listings, amen_cat)
+dim(amenities_listings)
+
+# flatten listings$amenities_list into char string to write to csv
+amenities_listings$amenities_list <- vapply(listings$amenities_list, paste, collapse = ", ", character(1L))
+for(i in 1:dim(listings)[2]){
+  print(class(listings[,i]))
+}
+
+write.csv(amenities_listings, 'amenities_listings.csv')
