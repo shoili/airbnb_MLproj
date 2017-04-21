@@ -75,3 +75,5 @@ listings$experiences_offered <- NULL
 listings$transit <- NULL
 listings$notes <- NULL
 listings$interaction <- NULL
+listings$latitude <- NULL
+listings$longitude <- NULL
