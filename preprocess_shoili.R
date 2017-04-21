@@ -4,6 +4,9 @@ listings$host_acceptance_rate <- as.numeric(sub("%", "", listings$host_acceptanc
 listings$host_response_rate <- as.numeric(sub("%", "", listings$host_response_rate))
 listings$host_response_time <- as.factor(listings$host_response_time)
 
+listings$notes <- NULL
+listings$neighborhood_overview <- NULL
+
 # 25. bed type is already a factor 
 # 24. accomodates bathrooms bedrooms beds checked that these are integer 
 
@@ -25,3 +28,30 @@ listings$security_deposit[is.na(listings$security_deposit)] <- 0
 
 # 31. cancellation policy. factor
 
+# 3
+
+library(tm)
+library(RWeka)
+
+BigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
+
+corp <- Corpus(VectorSource(listings$summary))
+# corp <- Corpus(VectorSource(listings$space))
+
+corp <- tm_map(corp, tolower)
+corp <- tm_map(corp, removePunctuation)
+corp <- tm_map(corp, removeNumbers)
+corp <- tm_map(corp, removeWords, stopwords("english"))
+
+tdm <- TermDocumentMatrix(corp, control = list(tokenize = BigramTokenizer))
+
+tdm <- removeSparseTerms(tdm, 0.99)
+print("----")
+print("tdm properties")
+str(tdm)
+tdm_top_N_percent = tdm$nrow / 100 * 20
+
+inspect(tdm[1:20, 1:10])
+findFreqTerms(tdm, lowfreq = 300)
+
+grepl("public transportation", tolower(listings$summary[14]))
