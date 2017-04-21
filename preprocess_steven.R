@@ -1,4 +1,4 @@
-#setwd('Documents/Georgia_Tech/Spring_2017/CSE_6740/airbnb/')
+#setwd('/Users/Stevenstuff/Documents/Georgia_Tech/Spring_2017/CSE_6740/airbnb/')
 #setwd('/Users/Stevenstuff/airbnb_MLproj/')
 library(dplyr)
 
@@ -29,22 +29,23 @@ listings$require_guest_profile_picture <- ifelse(listings$require_guest_profile_
 listings$require_guest_phone_verification <- ifelse(listings$require_guest_phone_verification == "t", 1, 0)
 
 # todo 6, 8, 15: transit 0/1 if field is there, 1 means good access to transportation
-listings$transit_bin <- ifelse(listings$transit != "", 1, 0)
-listings$thumbnail_bin <- ifelse(listings$thumbnail_url != "", 1, 0)
-listings$medium_bin <- ifelse(listings$medium_url != "", 1, 0)
-listings$picture_bin <- ifelse(listings$picture_url != "", 1, 0)
-listings$xl_picture_bin <- ifelse(listings$xl_picture_url != "", 1, 0)
-listings$host_thumbnail_bin <- ifelse(listings$host_thumbnail_url != "", 1, 0)
-listings$host_picture_bin <- ifelse(listings$host_picture_url != "", 1, 0)
+listings$transit <- ifelse(listings$transit != "", 1, 0)
+listings$thumbnail_url <- ifelse(listings$thumbnail_url != "", 1, 0)
+listings$medium_url <- ifelse(listings$medium_url != "", 1, 0)
+listings$picture_url <- ifelse(listings$picture_url != "", 1, 0)
+listings$xl_picture_url <- ifelse(listings$xl_picture_url != "", 1, 0)
+listings$host_thumbnail_url <- ifelse(listings$host_thumbnail_url != "", 1, 0)
+listings$host_picture_url <- ifelse(listings$host_picture_url != "", 1, 0)
 
 # todo 16: host neighborhood: factorize it since there's 53 neighborhoods
 # todo 17: leave host_listings_count and host_listings_total_count as is
 listings$host_neighbourhood <- as.factor(listings$host_neighbourhood)
 
 # todo 18: host verifications: count of items in list
-listings$host_verifications_count <- lengths(strsplit(listings$host_verifications, split=","))
+listings$host_verifications <- lengths(strsplit(listings$host_verifications, split=","))
 
-# todo 20: extract zipcode from street
+# todo 20: extract zipcode from street (already there!)
+'''
 zip = c()
 for(i in 1:length(listings$street)) {
   m <- regexpr("\\d{5}", listings$street[i], perl=TRUE)
@@ -52,6 +53,7 @@ for(i in 1:length(listings$street)) {
   ifelse(length(match) > 0, zip <- c(zip, regmatches(listings$street[i], m)), zip <- c(zip, NA))
 }
 listings$zipcode <- zip
+'''
 
 ################ todo 26: amenities ###################
 amen_list = c()
@@ -110,5 +112,6 @@ amenities_listings$amenities_list <- vapply(listings$amenities_list, paste, coll
 for(i in 1:dim(listings)[2]){
   print(class(listings[,i]))
 }
+amenities_listings <- subset(amenities_listings, select=-c(amenities))
 
 write.csv(amenities_listings, 'amenities_listings.csv')
