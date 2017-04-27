@@ -20,10 +20,13 @@ library(dplyr)
 #   select(-X.x, X, X.y)
 
 inner <- read.csv("dat.csv", row.names = F)
+inner$X <- NULL
 
 inner <- subset(inner, select = -c(id))
 # inner <- subset(inner, select = -c(X.x))
-clean <- subset(inner, select = -c(amenities,amenities_list,price))
+# clean <- subset(inner, select = -c(amenities,amenities_list,price))
+
+clean <- subset(inner, select = -c(amenities, amenities_list))
 
 # linear regression
 
