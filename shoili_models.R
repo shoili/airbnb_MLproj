@@ -5,7 +5,7 @@ library(glmnet)
 library(FNN)
 
 # read data
-inner <- read.csv("dat.csv", row.names = F)
+inner <- read.csv("dat.csv")
 
 # remove useless columns
 inner$X <- NULL
@@ -26,3 +26,7 @@ lassomodel <- glmnet(clean[c(1:106,108:118)],clean$price_num)
 ridgemodel <- lm.ridge(clean$avgprice~., data = clean)
 
 # knn regression
+knn_clean = na.omit(clean)
+## can only use numeric columns
+nums <- sapply(knn_clean, is.numeric)
+knnmodel <- knn.reg(knn_clean[,nums], y=knn_clean$avgprice, k=3)
