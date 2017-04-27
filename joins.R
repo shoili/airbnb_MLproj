@@ -1,11 +1,9 @@
 library(dplyr)
 
-available <- read.csv('available_listings.csv')
-available$X <- NULL
-listings <- read.csv("listings_final.csv")
-listings$X <- NULL
-reviews <- read.csv("Data/reviewsadj.csv")
-reviews$X <- NULL
+available <- read.csv('available_listings.csv', row.names = F)
+listings <- read.csv("listings_final.csv", row.names = F)
+reviews <- read.csv("Data/reviewsadj.csv", row.names = F)
+
 
 avail <- merge(listings, available, by.x="id", by.y="listing_id", all.y=TRUE)
 left <- merge(avail, reviews, by.x="id", by.y="listing_id", 
@@ -39,4 +37,4 @@ available2 <- unique(available2)
 
 available2_listings <- merge(listings, available2, by.x="id", by.y="listing_id", all.x = F, all.y = F)
 finaldata <- merge(available2_listings, reviews, by.x="id", by.y="listing_id")
-
+write.csv(finaldata, "dat.csv")
