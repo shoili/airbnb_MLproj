@@ -3,6 +3,7 @@ library(dplyr)
 library(MASS)
 library(glmnet)
 library(FNN)
+library(lars)
 
 # read data
 inner <- read.csv("dat.csv")
@@ -10,7 +11,7 @@ inner <- read.csv("dat.csv")
 # remove useless columns
 inner$X <- NULL
 inner <- subset(inner, select = -c(id))
-inner <- subset(inner, (pricevar < 170000))
+inner <- subset(inner, (pricevar < 100))
 clean <- subset(inner, select = -c(pricevar, amenities, 
                                    amenities_list, 
                                    requires_license, host_thumbnail_url,
@@ -19,51 +20,173 @@ nums <- sapply(clean, is.numeric)
 clean_num <- clean[,nums]
 clean_num <- na.omit(clean_num)
 
+######## set up for linear regression ###########
 linearmodel <- lm(avgprice~., data = clean_num)
+# remove features w/ pvalues > 0.1
 features <- subset(linearmodeldf, p.value < 0.1)
 featurenames <- features$term
 feat_new <- clean_num[c(featurenames[2:29], "avgprice")]
-feat_new <- subset(feat_new, avgprice < 600)
+# perform regressions on 2 subsets of data, price below 100 & price below 200
+# listings above 200 have horrendous MSE
+clean_100 <- subset(feat_new, avgprice < 100)
+clean_200 <- subset(feat_new, avgprice >= 100 & avgprice < 200)
+clean_above <- subset(feat_new, avgprice >= 200)
 
-n = dim(feat_new)[1] ### total number of observations
-n1 = round(n/5) ### number of obs randomly selected for testing data
+n_100 = dim(clean_100)[1] ### total number of observations
+n1_100 = round(n_100/5) ### number of obs randomly selected for testing data
+n_200 = dim(clean_200)[1] ### total number of observations
+n1_200 = round(n_200/5) ### number of obs randomly selected for testing data
+
+############# setup for stepwise/lasso regression ###############
+# stepwise/lasso/ridge
+features_more <- subset(linearmodeldf, p.value < 0.3)
+featurenames_more <- features_more$term
+feat_new_more <- clean_num[c(featurenames_more[2:52], "avgprice")]
+clean_100_more <- subset(feat_new_more, avgprice < 100)
+clean_200_more <- subset(feat_new_more, avgprice >= 100 & avgprice < 200)
+
+n_100_more = dim(clean_100_more)[1] ### total number of observations
+n1_100_more = round(n_100_more/5) ### number of obs randomly selected for testing data
+n_200_more = dim(clean_200_more)[1] ### total number of observations
+n1_200_more = round(n_200_more/5) ### number of obs randomly selected for testing data
+
+############ setup for ridge ############################
+blah_100 <- clean_100_more[,which(colSums(abs(clean_100_more)) !=0)]
+blah_200 <- clean_200_more[,which(colSums(abs(clean_200_more)) !=0)]
+n_100_blah = dim(blah_100)[1] ### total number of observations
+n1_100_blah = round(n_100_blah/5) ### number of obs randomly selected for testing data
+n_200_blah = dim(blah_200)[1] ### total number of observations
+n1_200_blah = round(n_200_blah/5) ### number of obs randomly selected for testing data
 
 B = 100
-TEALL = NULL
+TEALL_100 = NULL
+TEALL_200 = NULL
 
 for(b in 1:B) {
-  flag = sort(sample(1:n, n1));
-  train = feat_new[-flag,]; ### training set
-  test = feat_new[flag,]; ### testing set
+  # lin regression/KNN regression data splits
+  flag_100 = sort(sample(1:n_100, n1_100))
+  train_100 = clean_100[-flag_100,] ### training set
+  test_100 = clean_100[flag_100,] ### testing set
+  flag_200 = sort(sample(1:n_200, n1_200))
+  train_200 = clean_200[-flag_200,] ### training set
+  test_200 = clean_200[flag_200,] ### testing set
   
-  #lm
-  ytrue = test$avgprice
-  linearmodel <- lm(avgprice~., data = train)
+  # stepwise/lasso/ridge data splits
+  flag_100_more = sort(sample(1:n_100_more, n1_100_more))
+  train_100_more = clean_100_more[-flag_100_more,] ### training set
+  test_100_more = clean_100_more[flag_100_more,] ### testing set
+  flag_200_more = sort(sample(1:n_200_more, n1_200_more))
+  train_200_more = clean_200_more[-flag_200_more,] ### training set
+  test_200_more = clean_200_more[flag_200_more,] ### testing set
+  
+  ############### 1. linear regression ##########################
+  ytrue_100 = test_100$avgprice
+  linearmodel_100 <- lm(avgprice~., data = train_100)
   #linearmodeldf <- tidy(linearmodel)
-  pred1a <- predict(linearmodel, test[,-29]);
-  MSETestmod1 <-   mean((pred1a - ytrue)^2); 
+  pred1a_100 <- predict(linearmodel_100, test_100[,-29])
+  lm_100 <-   sqrt(mean((pred1a_100 - ytrue_100)^2))
   
-  # stepwise
-  stepmodel <- stepAIC(linearmodel, direction="both")
-  pred2a <- predict(stepmodel, test[,-93]);
-  MSETestmod2 <-   mean((pred2a - ytrue)^2); 
+  ytrue_200 = test_200$avgprice
+  linearmodel_200 <- lm(avgprice~., data = train_200)
+  #linearmodeldf <- tidy(linearmodel)
+  pred1a_200 <- predict(linearmodel_200, test_200[,-29]);
+  lm_200 <-   sqrt(mean((pred1a_200 - ytrue_200)^2)); 
   
-  # lasso
-  lassomodel <- glmnet(clean[c(1:106,108:118)],clean$price_num)
-  fit3 <- predict(lassomodel, as.matrix(test[,-100]), s=lasso.lambda, type="fit", mode="lambda");
-  yhat3 <- fit5b$fit; 
-  MSETestmod3 <- mean( (yhat5b - test$avgprice)^2); 
+  ############## 2. stepwise ##################################
+  stepmodel_100 <- stepAIC(linearmodel_100, direction="both")
+  pred2a_100 <- predict(stepmodel_100, test_100[,-29])
+  step_100 <-   sqrt(mean((pred2a_100 - ytrue_100)^2)) 
   
-  TEALL = rbind(TEALL, cbind(MSETestmod1, MSETestmod2, MSETestmod3));
-}  
-
-  # ridge
-  ridgemodel <- lm.ridge(clean$avgprice~., data = clean)
+  stepmodel_200 <- stepAIC(linearmodel_200, direction="both")
+  pred2a_200 <- predict(stepmodel_200, test_200[,-29])
+  step_200 <-   sqrt(mean((pred2a_200 - ytrue_200)^2))
   
-  # knn regression
-  knn_clean = na.omit(clean)
-  ## can only use numeric columns
-  nums <- sapply(knn_clean, is.numeric)
-  knnmodel <- knn.reg(knn_clean[,nums], y=knn_clean$avgprice, k=3)
-
+  ############## 3. lasso #######################################
+  lassomodel_100 <- lars(as.matrix(train_100_more[,1:51]), train_100_more[,52], 
+                         type= "lasso", trace= TRUE)
+  fit3_100 <- predict(lassomodel_100, as.matrix(test_100_more[,1:51]), s=1.3,
+                      type="fit", mode="lambda");
+  yhat3_100 <- fit3_100$fit; 
+  lasso_100 <- sqrt(mean((yhat3_100 - test_100_more$avgprice)^2))
+  
+  lassomodel_200 <- lars(as.matrix(train_200_more[,1:51]), train_200_more[,52], 
+                         type= "lasso", trace= TRUE)
+  fit3_200 <- predict(lassomodel_200, as.matrix(test_200_more[,1:51]), s=1.3,
+                      type="fit", mode="lambda");
+  yhat3_200 <- fit3_200$fit; 
+  lasso_200 <- sqrt(mean((yhat3_200 - test_200_more$avgprice)^2))
+  
+  ############## 4. ridge #########################################
+#   blah_100_flag = sort(sample(1:n_100_blah, n1_100_blah))
+#   blah_100_train <- blah_100[-blah_100_flag,] ### training set
+#   blah_100_test = blah_100[blah_100_flag,] ### testing set
+#   ridgemodel_100 <- lm.ridge(blah_100_train$avgprice~., data = blah_100_train, 
+#                          lambda = seq(0, 100, 0.01))
+#   lambdaopt_100 <- which.min(ridgemodel_100$GCV);
+#   rig1coef_100 <- ridgemodel_100$coef[,lambdaopt_100];
+#   # find the intercepts using ybar and xbar from training data
+#   rig1intercepts_100 <- ridgemodel_100$ym - sum(ridgemodel_100$xm * (rig1coef_100 / ridgemodel_100$scales)); 
+#   pred4_100 <- scale(blah_100_test[,1:49], center = F, scale = ridgemodel_100$scales)%*%rig1coef_100 + rig1intercepts_100
+#   ridge_100 <- sqrt(mean((pred4_100 - ytrue_100)^2))
+#   print(ridge_100)
+  
+#   # 200
+#   blah_200_flag = sort(sample(1:n_200_blah, n1_200_blah))
+#   blah_200_train <- blah_200[-blah_200_flag,] ### training set
+#   blah_200_test = blah_200[blah_200_flag,] ### testing set
+#   ridgemodel_200 <- lm.ridge(blah_200_train$avgprice~., data = blah_200_train, 
+#                              lambda = seq(0, 100, 0.01))
+#   lambdaopt_200 <- which.min(ridgemodel_200$GCV);
+#   rig1coef_200 <- ridgemodel_200$coef[,lambdaopt_200];
+#   # find the intercepts using ybar and xbar from training data
+#   rig1intercepts_200 <- ridgemodel_200$ym - sum(ridgemodel_200$xm * (rig1coef_200 / ridgemodel_200$scales)); 
+#   pred4_200 <- scale(blah_200_test[,1:49], center = F, scale = ridgemodel_200$scales)%*%rig1coef_200 + rig1intercepts_200
+#   ridge_200 <- sqrt(mean((pred4_200 - ytrue_200)^2))
+  
+  ############### 5. KNN Regression ##################################
+  knn_1 = knn.reg(train_100[,1:28], y=train_100$avgprice,k=1)
+  knn_3 = knn.reg(train_100[,1:28], y=train_100$avgprice,k=3)
+  knn_5 = knn.reg(train_100[,1:28], y=train_100$avgprice,k=5)
+  knn_7 = knn.reg(train_100[,1:28], y=train_100$avgprice,k=7)
+  knn_15 = knn.reg(train_100[,1:28], y=train_100$avgprice,k=15)
+  knn1_100 <- sqrt(mean((knn_1$pred - ytrue_100)^2))
+  knn3_100 <- sqrt(mean((knn_3$pred - ytrue_100)^2))
+  knn5_100 <- sqrt(mean((knn_5$pred - ytrue_100)^2))
+  knn7_100 <- sqrt(mean((knn_7$pred - ytrue_100)^2))
+  knn15_100 <- sqrt(mean((knn_15$pred - ytrue_100)^2))
+  
+  knn_1 = knn.reg(train_200[,1:28], y=train_200$avgprice,k=1)
+  knn_3 = knn.reg(train_200[,1:28], y=train_200$avgprice,k=3)
+  knn_5 = knn.reg(train_200[,1:28], y=train_200$avgprice,k=5)
+  knn_7 = knn.reg(train_200[,1:28], y=train_200$avgprice,k=7)
+  knn_15 = knn.reg(train_200[,1:28], y=train_200$avgprice,k=15)
+  knn1_200 <- sqrt(mean((knn_1$pred - ytrue_200)^2))
+  knn3_200 <- sqrt(mean((knn_3$pred - ytrue_200)^2))
+  knn5_200 <- sqrt(mean((knn_5$pred - ytrue_200)^2))
+  knn7_200 <- sqrt(mean((knn_7$pred - ytrue_200)^2))
+  knn15_200 <- sqrt(mean((knn_15$pred - ytrue_200)^2))
+  
+  ############# 6. Regression Tree #####################
+  tree_100 = rpart(avgprice ~., data=train_100, control=rpart.control(cp=1e-04))
+  pred_rt_100 = predict(tree_100, test_100[,1:28])
+  rt_100 <-   sqrt(mean((pred_rt_100 - ytrue_100)^2))
+  
+  tree_200 = rpart(avgprice ~., data=train_200, control=rpart.control(cp=1e-04))
+  pred_rt_200 = predict(tree_200, test_200[,1:28])
+  rt_200 <-   sqrt(mean((pred_rt_200 - ytrue_200)^2))
+  
+  TEALL_100 = rbind(TEALL_100, cbind(lm_100, step_100, lasso_100, 
+                                     knn1_100, knn3_100, knn5_100, knn7_100, 
+                                     knn15_100, rt_100))
+  TEALL_200 = rbind(TEALL_200, cbind(lm_200, step_200, lasso_200, 
+                                     knn1_200, knn3_200, knn5_200, knn7_200, 
+                                     knn15_200, rt_200))
 }
+
+means_100 <- apply(TEALL_100, 2, mean)
+var_100 <- apply(TEALL_100, 2, var)
+means_200 <- apply(TEALL_200, 2, mean)
+var_200 <- apply(TEALL_200, 2, var)
+
+write.csv(TEALL_100, "errors_100.csv")
+write.csv(TEALL_200, "errors_200.csv")
