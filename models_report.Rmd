@@ -1,0 +1,33 @@
+# Models
+
+## Linear Regression
+
+  Simple linear regression was used as a baseline model for performance. As expected,  fitting a linear regression on the entire dataset yielded unfavorable results, with an RMSE > 44.7. A possible reason for this performance was due to the number of highly priced rentals (>$200/night). As a result, the dataset was further subsetted into three smaller components: listings under $100 nightly, listings between $100 and $200 nightly, and listings over $200 nightly. Regression models were not fit for listings over $200 because the fitted models would perform poorly.
+  Feature selection was also performed using the original linear regression model. The most "useful" features were selected by examining the p-values for each coefficient in the fitted model and picking only the features with a p-value below a certain threshold. For models that do not innately perform feature selection, the p-value threshold was set at 10%. This reduced the amount of features down to 29 most statistically significant features.
+
+  Each binned dataset was further split into 80-20 training-testing data sets for validation purposes. This split was chosen due to the limited number of listings in Boston. Through 100 iterations, each model was trained onto the training set and predictions were generated and compared to the testing set. The comparison was reflected via root mean squared error (RMSE). The 100 RMSE values were then averaged and compared across models to determine the best performing model. A paired samples t-test was used to determine whether the best model performed statistically significantly better than the other models. 
+  
+## Stepwise Regression 
+  
+  Stepwise regression (MASS library) was performed using the previously fitted linear model. Using bidirectional selection, both forward and backward elimination were used to eliminate or add variables at every step. 
+  
+## Lasso Regression
+
+  Since Lasso Regression (lars library) performs feature selection, a wider number of features can be included while fitting the model. Therefore, the p-value threshold was shifted up to 30%, which increased the amount of features to 51. Lasso regression forces the sum of the absolute value of the regression coefficients to be less than a fixed value, which serves as a feature selection procedure. 
+
+
+## Ridge Regression
+
+  Ridge regression (lm.ridge) does not perform feature selection, though it does force the sum of squares of the regression coefficients to be less than a fixed value. Ridge regression does provide an improved prediction by shrinking coefficients that are large in magnitude to prevent overfitting. Ridge regression uses a lambda parameter to minimize mean squared error, which was optimized through generalized cross validation (GCV). 
+  
+## KNN Regression
+
+  KNN Regression (FNN library) is an application of the K nearest neighbors algorithm to estimate continuous variables. Several values of k were chosen: k=1, 3, 5, 7, 15. For both the $100/night and $200/night binned datasets, the best k-value was 15. In other words, the algorithm would take the 15 closest neighbors (Euclidean distance) and generated a prediction using an inverse distance weighted average for those 15 neighbors. 
+
+## CART: Regression Tree
+
+  Regression trees (rpart library) uses decision rules to predict a continuous outcome. A cost complexity factor of 0.0001 was used to dictate that a split must decrease the overall lack of fit by a factor of 0.0001 before being performed. 
+
+## Random Forest 
+
+  Parit u got dis

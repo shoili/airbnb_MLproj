@@ -37,8 +37,7 @@ n1_100 = round(n_100/5) ### number of obs randomly selected for testing data
 n_200 = dim(clean_200)[1] ### total number of observations
 n1_200 = round(n_200/5) ### number of obs randomly selected for testing data
 
-############# setup for stepwise/lasso regression ###############
-# stepwise/lasso/ridge
+############# setup for lasso regression ###############
 features_more <- subset(linearmodeldf, p.value < 0.3)
 featurenames_more <- features_more$term
 feat_new_more <- clean_num[c(featurenames_more[2:52], "avgprice")]
@@ -190,3 +189,30 @@ var_200 <- apply(TEALL_200, 2, var)
 
 write.csv(TEALL_100, "errors_100.csv")
 write.csv(TEALL_200, "errors_200.csv")
+
+# random forest test error values
+rf_all <- c(10.199981, 9.513880, 11.238640, 12.369489, 10.273996, 11.371680, 10.157451, 10.286907, 11.925999,
+10.847275, 11.327059, 11.504653, 12.288701,  9.830169, 12.566704, 10.902168, 12.441885, 12.739336,
+10.261816, 10.406223,  9.328172, 10.030011, 11.818224, 11.769025, 11.545916, 12.002052, 12.748935,
+10.757624,  9.897904, 10.826552, 10.972271, 11.537925, 11.919462, 13.263013, 11.162739, 11.885584,
+11.542185,  9.736788, 10.778046, 11.333811, 11.211111, 11.176666, 11.836852, 10.708638, 11.114151,
+11.837271, 11.353094, 11.457258, 11.500505, 14.061193, 10.358633, 10.517583, 12.950489, 12.359038,
+11.945972, 11.822813, 10.920706,  8.724078, 10.473460, 12.422105, 11.274145, 11.012464, 11.011550,
+11.515238, 11.372280, 11.359790,  9.922540, 10.712736, 11.681669, 10.867893, 12.409248, 12.295619,
+10.761020, 10.543467, 10.916222, 11.640304, 10.249922, 10.633260, 10.178963,  9.886135, 12.639046,
+11.501931, 11.285884, 12.844851, 12.281784, 12.177947, 12.950711, 11.744330, 10.738616, 11.545606,
+11.052071, 10.191215, 12.818452, 12.350261, 11.569720, 11.423028, 10.467902,  9.448761, 10.588459,
+13.311940)
+
+errors = cbind(errors_100, errors_200, rf_all)
+
+cols = dim(errors)[2]-1
+t_tests = matrix(ncol=cols,nrow=1)
+
+for (i in 1:cols) {
+  result <- t.test(errors[,19], errors[,i], paired=TRUE)
+  t_tests[1:i] <- result$p.value
+}
+# random forest is significantly better than everything else
+t_tests = data.frame(t_tests)
+colnames(t_tests) <- names(errors)[1:cols]
