@@ -6,13 +6,13 @@ output: pdf_document
   
 ## Team
   
-Parit Burintrathikul - paritb@gatech.edu
+Parit Burintrathikul - 
 
 Naveed Chowdhury - 
 
-Shoili Pal - spal41@gatech.edu
+Shoili Pal - spal41
 
-Steven Yeh - syeh35@gatech.edu
+Steven Yeh - syeh35
 
 ## Introduction
 
@@ -144,6 +144,10 @@ The following tables contain the results from our various models. The data was s
 |-------------------------|---------------|--------------|
 | Gini Index (All prices) | 0.1832        | 11.18        |
 | Entropy (All prices)    | 0.2214        | 13.45        |
+
+We performed a statistical test (the t-test) to examine whether the mean accuracies are statistically significantly higher than the accuracies of other models.
+
+Our best model is the Random Forest Model. 
 
 ## Discussion
 
