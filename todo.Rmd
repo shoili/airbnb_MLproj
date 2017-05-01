@@ -17,3 +17,9 @@ Naveed
 
 Shoili 
 12, 13, 21-25, 31, 27-29
+
+Parit
+Random Forest
+
+Naveed
+Linear reg, lasso. ridge, cart

@@ -10,7 +10,8 @@ inner <- read.csv("dat.csv")
 # remove useless columns
 inner$X <- NULL
 inner <- subset(inner, select = -c(id))
-clean <- subset(inner, select = -c(amenities, amenities_list))
+clean <- subset(inner, select = -c(amenities, amenities_list, pricevar, requires_license,
+                                   host_thumbnail_url, host_picture_url, picture_url))
 
 #lm
 linearmodel <- lm(clean$avgprice~., data = clean)

@@ -1,4 +1,4 @@
-listings <- read.csv("amenities_listings.csv")
+listings <- read.csv("listings.csv")
 
 listings$host_acceptance_rate <- as.numeric(sub("%", "", listings$host_acceptance_rate))
 listings$host_response_rate <- as.numeric(sub("%", "", listings$host_response_rate))

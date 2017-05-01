@@ -16,6 +16,9 @@ available_listings$price_num <- as.numeric(sub("\\$","", available_listings$pric
 summary(available_listings$price_num)
 
 available_listings <- available_listings[!is.na(available_listings$price_num), ]
+write.csv(available_listings, file = "available_listings.csv")
+
+rm(calendar)
 
 # listings
 colnames(listings)
