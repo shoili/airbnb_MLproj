@@ -3,12 +3,12 @@ title: "AirBnB Pricing Predictions - ISyE 6740 Project"
 date: "April 28, 2017"
 output: pdf_document
 ---
-  
+
 ## Team
-  
+
 Parit Burintrathikul - parit3
 
-Naveed Chowdhury - 
+Naveed Chowdhury -
 
 Shoili Pal - spal41
 
@@ -16,11 +16,11 @@ Steven Yeh - syeh35
 
 ## Introduction
 
-The global hotel industry has been on the rise in the past two decades. With the rising middle class from across the globe, especially in places like China, people are travelling more than ever. The whole industry is currently estimated to be worth over 550 billion USD to grow to over 700 billion USD in 2021. Even in the US itself, it is valued at over 200 billion USD. 
+The global hotel industry has been on the rise in the past two decades. With the rising middle class from across the globe, especially in places like China, people are travelling more than ever. The whole industry is currently estimated to be worth over 550 billion USD to grow to over 700 billion USD in 2021. Even in the US itself, it is valued at over 200 billion USD.
 
 AirBnB is a start-up based in San Francisco, CA. Their business model is that homeowners with spare rooms or vacant properties can rent out the property for any duration of time. As a company, AirBnB is growing at a rapid rate. In its last round of investment, it was able to raise over 850 million USD with a current valuation of over 30 Billion USD.
 
-Our objective in this project is to create a model from airBnB leasing data to predict and estimate per night prices of new properties in Boston and understanding what main indicators help drive the price of a property. This could help potential new landlords evaluate their room’s worth and not under/overvalue their property. The models can probably be generalized for use in other cities too. 
+Our objective in this project is to create a model from airBnB leasing data to predict and estimate per night prices of new properties in Boston and understanding what main indicators help drive the price of a property. This could help potential new landlords evaluate their room’s worth and not under/overvalue their property. The models can probably be generalized for use in other cities too.
 
 ## Data
 
@@ -41,7 +41,7 @@ The data we are using is sourced from Kaggle, https://www.kaggle.com/airbnb/bost
 
 #### Reviews
 
-There were a total of 68275 reviews from the listings in Boston, split into 14 different languages. 93% of the reviews were primarily in English, 4% were split between French, Spanish and Turkish and the last 3% were comprised of the rest of the 10 languages. Since the majority of the reviews were in English, we decided to focus only on them and remove the non-English reviews. 
+There were a total of 68275 reviews from the listings in Boston, split into 14 different languages. 93% of the reviews were primarily in English, 4% were split between French, Spanish and Turkish and the last 3% were comprised of the rest of the 10 languages. Since the majority of the reviews were in English, we decided to focus only on them and remove the non-English reviews.
 
 #### Listings
 
@@ -54,11 +54,11 @@ There were a total of 68275 reviews from the listings in Boston, split into 14 d
 
 ### Data Pre-processing
 
-In our initial data preprocessing, we removed around 4-5 predictors which were homogenous across all the listings. We also removed fields like monthly price and weekly price which are basically a multiple of the nightly price which we are trying to predict. 
+In our initial data preprocessing, we removed around 4-5 predictors which were homogenous across all the listings. We also removed fields like monthly price and weekly price which are basically a multiple of the nightly price which we are trying to predict.
 
 #### Creating the Final Dataset
 
-The three main datasets are joined on listing ids to create a master dataset to train our algorithms on. The joined dataset had around 116 unique variables and 700k observations, due to the periodic scraping of listings over time to reflect change in price over time. We decided to model the average price per night of each listing since all our predictor variables stay the same except the date. We checked that the variance over time was not too high for most of the listings. 
+The three main datasets are joined on listing ids to create a master dataset to train our algorithms on. The joined dataset had around 116 unique variables and 700k observations, due to the periodic scraping of listings over time to reflect change in price over time. We decided to model the average price per night of each listing since all our predictor variables stay the same except the date. We checked that the variance over time was not too high for most of the listings.
 
 ## Feature Engineering
 
@@ -70,51 +70,51 @@ Corpuses were created from the text fields like description of the listings. All
 
 ### Sentiment Analysis
 
-Using the multitudes of reviews available to us, we converted each review to a sentiment polarity score, ranging between [-1,1] where 1 is a wholly positive review and -1 is a wholly negative review. We had decided against building our own specific corpus for sentiment analysis due to the lack of labelled review data; the reviews themselves only contained the user and his/her review text without review specific ratings. While the specifically trained model may provide us with more reflectively scores, the unavailability of such data convinced us to proceed with using pre-trained models. 
+Using the multitudes of reviews available to us, we converted each review to a sentiment polarity score, ranging between [-1,1] where 1 is a wholly positive review and -1 is a wholly negative review. We had decided against building our own specific corpus for sentiment analysis due to the lack of labelled review data; the reviews themselves only contained the user and his/her review text without review specific ratings. While the specifically trained model may provide us with more reflectively scores, the unavailability of such data convinced us to proceed with using pre-trained models.
 
 # Methods
 
 ## Linear Regression
 
   Simple linear regression was used as a baseline model for performance. As expected, fitting a linear regression on the entire dataset yielded unfavorable results, with an RMSE > 44.7. A possible reason for this performance was due to the number of highly priced rentals (>\$200/night). As a result, the dataset was further subsetted into three smaller components: listings under \$100 nightly, listings between \$100 and \$200 nightly, and listings over \$200 nightly. Regression models fit for listings over \$200 performed very poorly so we limited our investigation to the rest of the listings.
-  
+
   Feature selection was also performed using the original linear regression model. The most "useful" features were selected by examining the p-values for each coefficient in the fitted model and picking only the features with a p-value below a certain threshold. For models that do not innately perform feature selection, the p-value threshold was set at 10%. This reduced the amount of features down to 29 most statistically significant features.
 
 
-  
-## Stepwise Regression 
-  
-Stepwise regression (MASS library) was performed using the previously fitted linear model. Using bidirectional selection, both forward and backward elimination were used to eliminate or add variables at every step. 
-  
+
+## Stepwise Regression
+
+Stepwise regression (MASS library) was performed using the previously fitted linear model. Using bidirectional selection, both forward and backward elimination were used to eliminate or add variables at every step.
+
 ## Lasso Regression
 
-Since Lasso Regression (lars library) performs feature selection, a wider number of features can be included while fitting the model. Therefore, the p-value threshold was shifted up to 30%, which increased the amount of features to 51. Lasso regression forces the sum of the absolute value of the regression coefficients to be less than a fixed value, which serves as a feature selection procedure. 
+Since Lasso Regression (lars library) performs feature selection, a wider number of features can be included while fitting the model. Therefore, the p-value threshold was shifted up to 30%, which increased the amount of features to 51. Lasso regression forces the sum of the absolute value of the regression coefficients to be less than a fixed value, which serves as a feature selection procedure.
 
 ## Ridge Regression
 
-Ridge regression (lm.ridge) does not perform feature selection, though it does force the sum of squares of the regression coefficients to be less than a fixed value. Ridge regression does provide an improved prediction by shrinking coefficients that are large in magnitude to prevent overfitting. Ridge regression uses a lambda parameter to minimize mean squared error, which was optimized through generalized cross validation (GCV). 
-  
+Ridge regression (lm.ridge) does not perform feature selection, though it does force the sum of squares of the regression coefficients to be less than a fixed value. Ridge regression does provide an improved prediction by shrinking coefficients that are large in magnitude to prevent overfitting. Ridge regression uses a lambda parameter to minimize mean squared error, which was optimized through generalized cross validation (GCV).
+
 ## KNN Regression
 
-KNN Regression (FNN library) is an application of the K nearest neighbors algorithm to estimate continuous variables. Several values of k were chosen: k=1, 3, 5, 7, 15. For both the \$100/night and \$200/night binned datasets, the best k-value was 15. In other words, the algorithm would take the 15 closest neighbors (Euclidean distance) and generated a prediction using an inverse distance weighted average for those 15 neighbors. 
+KNN Regression (FNN library) is an application of the K nearest neighbors algorithm to estimate continuous variables. Several values of k were chosen: k=1, 3, 5, 7, 15. For both the \$100/night and \$200/night binned datasets, the best k-value was 15. In other words, the algorithm would take the 15 closest neighbors (Euclidean distance) and generated a prediction using an inverse distance weighted average for those 15 neighbors.
 
 ## CART: Regression Tree
 
-Regression trees (rpart library) uses decision rules to predict a continuous outcome. A cost complexity factor of 0.0001 was used to dictate that a split must decrease the overall lack of fit by a factor of 0.0001 before being performed. 
+Regression trees (rpart library) uses decision rules to predict a continuous outcome. A cost complexity factor of 0.0001 was used to dictate that a split must decrease the overall lack of fit by a factor of 0.0001 before being performed.
 
-## Random Forest 
+## Random Forest
 
 Random Forest was chosen as one of the models to try as it is known to give good accuracy in many situations and is not too computationally intense. Both the gini and entropy index were used for splitting in order to find the lowest RMSE.
 
 ## Validation
 
-Each binned dataset was further split into 80-20 training-testing data sets for validation purposes. This split was chosen due to the limited number of listings in Boston. Through 100 iterations, each model was trained onto the training set and predictions were generated and compared to the testing set. The comparison was reflected via root mean squared error (RMSE). The 100 RMSE values were then averaged and compared across models to determine the best performing model. A paired samples t-test was used to determine whether the best model performed statistically significantly better than the other models. 
+Each binned dataset was further split into 80-20 training-testing data sets for validation purposes. This split was chosen due to the limited number of listings in Boston. Through 100 iterations, each model was trained onto the training set and predictions were generated and compared to the testing set. The comparison was reflected via root mean squared error (RMSE). The 100 RMSE values were then averaged and compared across models to determine the best performing model. A paired samples t-test was used to determine whether the best model performed statistically significantly better than the other models.
 
-We used Root mean squared error as our error metric. 
+We used Root mean squared error as our error metric.
 
 # Results
 
-The following tables contain the results from our various models. The data was split into a training and testing set. We only look at the testing set error here, averaged over 100 runs. 
+The following tables contain the results from our various models. The data was split into a training and testing set. We only look at the testing set error here, averaged over 100 runs.
 
 | Regression                              | Testing RMSE |
 |-----------------------------------------|--------------|
@@ -153,11 +153,11 @@ We performed a statistical test (the t-test) to examine whether the mean accurac
 
 ## Discussion
 
-From our regression results, it may seem that out simple linear regression model fits slightly better on the <100 segmentation with a lower absolute RMSE. However if we look at the percentage error of the predictions, the RMSE remains within comparable range where the RMSE is around 15% from the smaller range (0-100) and ~13% from the other (0-200) range. Furthermore, our attempt to improve on the simple linear regression using other feature selection (Lasso and Ridge) and segmentation (CART) techniques resulted in minute changes in out testing RMSE. The Lasso and Ridge model may have simply removed redundant variables, thus not really alternating the RMSE.
+From our regression results, it may seem that our simple linear regression model fits slightly better on the <100 segmentation with a lower absolute RMSE. However if we look at the percentage error of the predictions, the RMSE with respective to the overall range remains comparable where the RMSE is around 15% from the smaller range (0-100) and ~13% from the other (0-200) range. Furthermore, our attempt to improve on the simple linear regression using other feature selection (Lasso and Ridge) and segmentation (CART) techniques resulted in minute changes in out testing RMSE. The Lasso and Ridge model may have simply removed redundant variables, thus not really alternating the RMSE.
 
 Yet, the linear regression does still provide inference on the importance of certain predictors from their coefficients. Unsurprisingly, we were able to find that the obvious relationships like, the neighborhood, the number of bedroom and bathrooms, whether washers and dryers were available, or whether harvard was mentioned in the listing were significant predictors in price. On the other hand, we also found more interesting predictors that were correlated to significant increases to the price such as whether the host has a profile picture or whether there is a pool or not.
 
-With our K-nearest neighbors model, the testing RMSE were significantly worse than the basic linear regression. This could be most likely attributed to the large number of variables we have i.e. the curse of dimensionality, as the "nearest" neighbors would not be a good representation of the query point. While we tried trimming out certain variables alongside with categorical values which is not usable, we still had 26 variables left over which were still quite high. Similar to the regression results, the RMSE across the different ranges of data shows comparable precentage errors where the data with twice the range of values does have twice the RMSE. 
+With our K-nearest neighbors model, the testing RMSE were significantly worse than the basic linear regression. This could be most likely attributed to the large number of variables we have i.e. the curse of dimensionality, as the "nearest" neighbors would not be a good representation of the query point. While we tried trimming out certain variables alongside with categorical values which were not usable, we still had 26 variables left over which were still quite high. Similar to the regression results, the RMSE across the different ranges of data shows comparable precentage errors where the data with twice the range of values does have twice the RMSE.
 
 As shown above, our best models were the Random Forest Model. This could be due to the lower number of assumptions in the model, where unlike linear regression, the algorithm does not require assumptions of independence, normal distribution of data, no multicollinearity, etc. This makes it a much more suitable approach to our current dataset, which, as seen in the exploratory data analysis, are quite skewed with many correlated variables. As one would expect, the Gini index performed slightly better than the entropy since the index itself focuses more on minimizing the misclassification rate while entropy focuses more on the exploration of the data. With entropy, we discovered that the predictor which has the highest information gain ratios were zip code and cleaning fee. These made sense
 
@@ -183,10 +183,10 @@ listings$host_response_time <- as.factor(listings$host_response_time)
 listings$notes <- NULL
 listings$neighborhood_overview <- NULL
 
-# 25. bed type is already a factor 
-# 24. accomodates bathrooms bedrooms beds checked that these are integer 
+# 25. bed type is already a factor
+# 24. accomodates bathrooms bedrooms beds checked that these are integer
 
-# 23. property_type and room_type are factors 
+# 23. property_type and room_type are factors
 
 # 21. nbd is a factor
 
@@ -238,7 +238,7 @@ downtown <- as.numeric(grepl("downtown", tolower(listings$summary)) &
 kitchen <- as.numeric(grepl("kitchen", tolower(listings$summary)))
 restaurants <- as.numeric(grepl("restaurants", tolower(listings$summary)))
 laundry <- as.numeric(grepl("laundry", tolower(listings$description)))
-harvard <- as.numeric(grepl("harvard", tolower(listings$description)) 
+harvard <- as.numeric(grepl("harvard", tolower(listings$description))
                       & grepl("harvard", tolower(listings$summary)))
 bus <- as.numeric(grepl("bus", tolower(listings$transit)))
 subway <- as.numeric(grepl("subway", tolower(listings$transit)))
@@ -268,8 +268,8 @@ inner <- read.csv("dat.csv")
 inner$X <- NULL
 inner <- subset(inner, select = -c(id))
 inner <- subset(inner, (pricevar < 100))
-clean <- subset(inner, select = -c(pricevar, amenities, 
-                                   amenities_list, 
+clean <- subset(inner, select = -c(pricevar, amenities,
+                                   amenities_list,
                                    requires_license, host_thumbnail_url,
                                    host_picture_url, picture_url))
 nums <- sapply(clean, is.numeric)
@@ -325,7 +325,7 @@ for(b in 1:B) {
   flag_200 = sort(sample(1:n_200, n1_200))
   train_200 = clean_200[-flag_200,] ### training set
   test_200 = clean_200[flag_200,] ### testing set
-  
+
   # stepwise/lasso/ridge data splits
   flag_100_more = sort(sample(1:n_100_more, n1_100_more))
   train_100_more = clean_100_more[-flag_100_more,] ### training set
@@ -333,71 +333,71 @@ for(b in 1:B) {
   flag_200_more = sort(sample(1:n_200_more, n1_200_more))
   train_200_more = clean_200_more[-flag_200_more,] ### training set
   test_200_more = clean_200_more[flag_200_more,] ### testing set
-  
+
   ############### 1. linear regression ##########################
   ytrue_100 = test_100$avgprice
   linearmodel_100 <- lm(avgprice~., data = train_100)
   #linearmodeldf <- tidy(linearmodel)
   pred1a_100 <- predict(linearmodel_100, test_100[,-29])
   lm_100 <-   sqrt(mean((pred1a_100 - ytrue_100)^2))
-  
+
   ytrue_200 = test_200$avgprice
   linearmodel_200 <- lm(avgprice~., data = train_200)
   #linearmodeldf <- tidy(linearmodel)
   pred1a_200 <- predict(linearmodel_200, test_200[,-29]);
-  lm_200 <-   sqrt(mean((pred1a_200 - ytrue_200)^2)); 
-  
+  lm_200 <-   sqrt(mean((pred1a_200 - ytrue_200)^2));
+
   ############## 2. stepwise ##################################
   stepmodel_100 <- stepAIC(linearmodel_100, direction="both")
   pred2a_100 <- predict(stepmodel_100, test_100[,-29])
-  step_100 <-   sqrt(mean((pred2a_100 - ytrue_100)^2)) 
-  
+  step_100 <-   sqrt(mean((pred2a_100 - ytrue_100)^2))
+
   stepmodel_200 <- stepAIC(linearmodel_200, direction="both")
   pred2a_200 <- predict(stepmodel_200, test_200[,-29])
   step_200 <-   sqrt(mean((pred2a_200 - ytrue_200)^2))
-  
+
   ############## 3. lasso #######################################
-  lassomodel_100 <- lars(as.matrix(train_100_more[,1:51]), train_100_more[,52], 
+  lassomodel_100 <- lars(as.matrix(train_100_more[,1:51]), train_100_more[,52],
                          type= "lasso", trace= TRUE)
   fit3_100 <- predict(lassomodel_100, as.matrix(test_100_more[,1:51]), s=1.3,
                       type="fit", mode="lambda");
-  yhat3_100 <- fit3_100$fit; 
+  yhat3_100 <- fit3_100$fit;
   lasso_100 <- sqrt(mean((yhat3_100 - test_100_more$avgprice)^2))
-  
-  lassomodel_200 <- lars(as.matrix(train_200_more[,1:51]), train_200_more[,52], 
+
+  lassomodel_200 <- lars(as.matrix(train_200_more[,1:51]), train_200_more[,52],
                          type= "lasso", trace= TRUE)
   fit3_200 <- predict(lassomodel_200, as.matrix(test_200_more[,1:51]), s=1.3,
                       type="fit", mode="lambda");
-  yhat3_200 <- fit3_200$fit; 
+  yhat3_200 <- fit3_200$fit;
   lasso_200 <- sqrt(mean((yhat3_200 - test_200_more$avgprice)^2))
-  
+
   ############## 4. ridge #########################################
 #   blah_100_flag = sort(sample(1:n_100_blah, n1_100_blah))
 #   blah_100_train <- blah_100[-blah_100_flag,] ### training set
 #   blah_100_test = blah_100[blah_100_flag,] ### testing set
-#   ridgemodel_100 <- lm.ridge(blah_100_train$avgprice~., data = blah_100_train, 
+#   ridgemodel_100 <- lm.ridge(blah_100_train$avgprice~., data = blah_100_train,
 #                          lambda = seq(0, 100, 0.01))
 #   lambdaopt_100 <- which.min(ridgemodel_100$GCV);
 #   rig1coef_100 <- ridgemodel_100$coef[,lambdaopt_100];
 #   # find the intercepts using ybar and xbar from training data
-#   rig1intercepts_100 <- ridgemodel_100$ym - sum(ridgemodel_100$xm * (rig1coef_100 / ridgemodel_100$scales)); 
+#   rig1intercepts_100 <- ridgemodel_100$ym - sum(ridgemodel_100$xm * (rig1coef_100 / ridgemodel_100$scales));
 #   pred4_100 <- scale(blah_100_test[,1:49], center = F, scale = ridgemodel_100$scales)%*%rig1coef_100 + rig1intercepts_100
 #   ridge_100 <- sqrt(mean((pred4_100 - ytrue_100)^2))
 #   print(ridge_100)
-  
+
 #   # 200
 #   blah_200_flag = sort(sample(1:n_200_blah, n1_200_blah))
 #   blah_200_train <- blah_200[-blah_200_flag,] ### training set
 #   blah_200_test = blah_200[blah_200_flag,] ### testing set
-#   ridgemodel_200 <- lm.ridge(blah_200_train$avgprice~., data = blah_200_train, 
+#   ridgemodel_200 <- lm.ridge(blah_200_train$avgprice~., data = blah_200_train,
 #                              lambda = seq(0, 100, 0.01))
 #   lambdaopt_200 <- which.min(ridgemodel_200$GCV);
 #   rig1coef_200 <- ridgemodel_200$coef[,lambdaopt_200];
 #   # find the intercepts using ybar and xbar from training data
-#   rig1intercepts_200 <- ridgemodel_200$ym - sum(ridgemodel_200$xm * (rig1coef_200 / ridgemodel_200$scales)); 
+#   rig1intercepts_200 <- ridgemodel_200$ym - sum(ridgemodel_200$xm * (rig1coef_200 / ridgemodel_200$scales));
 #   pred4_200 <- scale(blah_200_test[,1:49], center = F, scale = ridgemodel_200$scales)%*%rig1coef_200 + rig1intercepts_200
 #   ridge_200 <- sqrt(mean((pred4_200 - ytrue_200)^2))
-  
+
   ############### 5. KNN Regression ##################################
   knn_1 = knn.reg(train_100[,1:28], y=train_100$avgprice,k=1)
   knn_3 = knn.reg(train_100[,1:28], y=train_100$avgprice,k=3)
@@ -409,7 +409,7 @@ for(b in 1:B) {
   knn5_100 <- sqrt(mean((knn_5$pred - ytrue_100)^2))
   knn7_100 <- sqrt(mean((knn_7$pred - ytrue_100)^2))
   knn15_100 <- sqrt(mean((knn_15$pred - ytrue_100)^2))
-  
+
   knn_1 = knn.reg(train_200[,1:28], y=train_200$avgprice,k=1)
   knn_3 = knn.reg(train_200[,1:28], y=train_200$avgprice,k=3)
   knn_5 = knn.reg(train_200[,1:28], y=train_200$avgprice,k=5)
@@ -420,21 +420,21 @@ for(b in 1:B) {
   knn5_200 <- sqrt(mean((knn_5$pred - ytrue_200)^2))
   knn7_200 <- sqrt(mean((knn_7$pred - ytrue_200)^2))
   knn15_200 <- sqrt(mean((knn_15$pred - ytrue_200)^2))
-  
+
   ############# 6. Regression Tree #####################
   tree_100 = rpart(avgprice ~., data=train_100, control=rpart.control(cp=1e-04))
   pred_rt_100 = predict(tree_100, test_100[,1:28])
   rt_100 <-   sqrt(mean((pred_rt_100 - ytrue_100)^2))
-  
+
   tree_200 = rpart(avgprice ~., data=train_200, control=rpart.control(cp=1e-04))
   pred_rt_200 = predict(tree_200, test_200[,1:28])
   rt_200 <-   sqrt(mean((pred_rt_200 - ytrue_200)^2))
-  
-  TEALL_100 = rbind(TEALL_100, cbind(lm_100, step_100, lasso_100, 
-                                     knn1_100, knn3_100, knn5_100, knn7_100, 
+
+  TEALL_100 = rbind(TEALL_100, cbind(lm_100, step_100, lasso_100,
+                                     knn1_100, knn3_100, knn5_100, knn7_100,
                                      knn15_100, rt_100))
-  TEALL_200 = rbind(TEALL_200, cbind(lm_200, step_200, lasso_200, 
-                                     knn1_200, knn3_200, knn5_200, knn7_200, 
+  TEALL_200 = rbind(TEALL_200, cbind(lm_200, step_200, lasso_200,
+                                     knn1_200, knn3_200, knn5_200, knn7_200,
                                      knn15_200, rt_200))
 }
 
@@ -480,13 +480,12 @@ colnames(t_tests) <- names(errors)[1:cols]
 
 https://www.kaggle.com/airbnb/boston
 
-* R 
+* R
 
 https://www.r-project.org/
-  
+
 https://cran.r-project.org/doc/manuals/r-patched/R-intro.pdf
 
 * Python
 
 https://www.python.org/
-  
