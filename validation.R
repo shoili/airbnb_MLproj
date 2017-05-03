@@ -23,6 +23,7 @@ clean_num <- na.omit(clean_num)
 ######## set up for linear regression ###########
 linearmodel <- lm(avgprice~., data = clean_num)
 # remove features w/ pvalues > 0.1
+linearmodeldf <- tidy(linearmodel)
 features <- subset(linearmodeldf, p.value < 0.1)
 featurenames <- features$term
 feat_new <- clean_num[c(featurenames[2:29], "avgprice")]

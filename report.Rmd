@@ -6,7 +6,7 @@ output: pdf_document
   
 ## Team
   
-Parit Burintrathikul - 
+Parit Burintrathikul - parit3
 
 Naveed Chowdhury - 
 
@@ -80,7 +80,7 @@ Using the multitudes of reviews available to us, we converted each review to a s
   
   Feature selection was also performed using the original linear regression model. The most "useful" features were selected by examining the p-values for each coefficient in the fitted model and picking only the features with a p-value below a certain threshold. For models that do not innately perform feature selection, the p-value threshold was set at 10%. This reduced the amount of features down to 29 most statistically significant features.
 
-  Each binned dataset was further split into 80-20 training-testing data sets for validation purposes. This split was chosen due to the limited number of listings in Boston. Through 100 iterations, each model was trained onto the training set and predictions were generated and compared to the testing set. The comparison was reflected via root mean squared error (RMSE). The 100 RMSE values were then averaged and compared across models to determine the best performing model. A paired samples t-test was used to determine whether the best model performed statistically significantly better than the other models. 
+
   
 ## Stepwise Regression 
   
@@ -106,9 +106,11 @@ Regression trees (rpart library) uses decision rules to predict a continuous out
 
 Random Forest was chosen as one of the models to try as it is known to give good accuracy in many situations and is not too computationally intense. Both the gini and entropy index were used for splitting in order to find the lowest RMSE.
 
-## Error Metric
+## Validation
 
-We use Root mean squared error as our error metric. 
+Each binned dataset was further split into 80-20 training-testing data sets for validation purposes. This split was chosen due to the limited number of listings in Boston. Through 100 iterations, each model was trained onto the training set and predictions were generated and compared to the testing set. The comparison was reflected via root mean squared error (RMSE). The 100 RMSE values were then averaged and compared across models to determine the best performing model. A paired samples t-test was used to determine whether the best model performed statistically significantly better than the other models. 
+
+We used Root mean squared error as our error metric. 
 
 # Results
 
@@ -125,7 +127,7 @@ The following tables contain the results from our various models. The data was s
 | Stepwise (price < $100)                 | 15.01        |
 | Stepwise (price < $200)                 | 25.3         |
 | CART (price < $100)                     | 16.08        |
-| CART (price < $100)                     | 28.9         |
+| CART (price < $200)                     | 28.9         |
 
 | K Nearest Neighbors       | Testing RMSE |
 |---------------------------|--------------|
@@ -147,11 +149,21 @@ The following tables contain the results from our various models. The data was s
 
 We performed a statistical test (the t-test) to examine whether the mean accuracies are statistically significantly higher than the accuracies of other models.
 
-Our best model is the Random Forest Model. 
+
 
 ## Discussion
 
+From our regression results, it may seem that out simple linear regression model fits slightly better on the <100 segmentation with a lower absolute RMSE. However if we look at the percentage error of the predictions, the RMSE remains within comparable range where the RMSE is around 15% from the smaller range (0-100) and ~13% from the other (0-200) range. Furthermore, our attempt to improve on the simple linear regression using other feature selection (Lasso and Ridge) and segmentation (CART) techniques resulted in minute changes in out testing RMSE. The Lasso and Ridge model may have simply removed redundant variables, thus not really alternating the RMSE.
 
+Yet, the linear regression does still provide inference on the importance of certain predictors from their coefficients. Unsurprisingly, we were able to find that the obvious relationships like, the neighborhood, the number of bedroom and bathrooms, whether washers and dryers were available, or whether harvard was mentioned in the listing were significant predictors in price. On the other hand, we also found more interesting predictors that were correlated to significant increases to the price such as whether the host has a profile picture or whether there is a pool or not.
+
+With our K-nearest neighbors model, the testing RMSE were significantly worse than the basic linear regression. This could be most likely attributed to the large number of variables we have i.e. the curse of dimensionality, as the "nearest" neighbors would not be a good representation of the query point. While we tried trimming out certain variables alongside with categorical values which is not usable, we still had 26 variables left over which were still quite high. Similar to the regression results, the RMSE across the different ranges of data shows comparable precentage errors where the data with twice the range of values does have twice the RMSE. 
+
+As shown above, our best models were the Random Forest Model. This could be due to the lower number of assumptions in the model, where unlike linear regression, the algorithm does not require assumptions of independence, normal distribution of data, no multicollinearity, etc. This makes it a much more suitable approach to our current dataset, which, as seen in the exploratory data analysis, are quite skewed with many correlated variables. As one would expect, the Gini index performed slightly better than the entropy since the index itself focuses more on minimizing the misclassification rate while entropy focuses more on the exploration of the data. With entropy, we discovered that the predictor which has the highest information gain ratios were zip code and cleaning fee. These made sense
+
+In terms of future work, there are definitely parts that could be improved upon. Our feature generations were quite simple and not too rigorous in nature. The binary flags that we created were only dependent on whether the word appeared frequently and whether we thought it would be important or not. Further improvement could be made by looking at important keywords from trained corpus which prove to be more rigorous than selecting them ourselves. If given the time and availablity of labelled data, we could also have tried to train our own corpus on housing reviews for the sentiment analysis which would have been more specific in nature. Similarly this could also be extended to training corpuses for other languages in order to be able to incorporate more data.
+
+Another large issue that we could have tackled would be to study the changes in price over time and its relation to seasonal effects since our exploratory data does show that there are variations over different months as well as a general increasing trend over time. These would also have to account for certain spikes due to festivals and long holiday weekends.
 
 ## Conclusions
 
