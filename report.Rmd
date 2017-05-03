@@ -8,7 +8,7 @@ output: pdf_document
 
 Parit Burintrathikul - parit3
 
-Naveed Chowdhury -
+Naveed Chowdhury - nchowdhury33
 
 Shoili Pal - spal41
 
@@ -43,14 +43,21 @@ The data we are using is sourced from Kaggle, https://www.kaggle.com/airbnb/bost
 
 There were a total of 68275 reviews from the listings in Boston, split into 14 different languages. 93% of the reviews were primarily in English, 4% were split between French, Spanish and Turkish and the last 3% were comprised of the rest of the 10 languages. Since the majority of the reviews were in English, we decided to focus only on them and remove the non-English reviews.
 
+\includegraphics[width=10cm,height=10cm,keepaspectratio]{reviews.png}
+
 #### Listings
+
+This file has data about the 3585 unique properties listed. We see that most of the properties accomodate between 1 to 4 tenants but there are some bigger ones. Amenities like TV, Washer-Dryer, Iron etc are variables created from a json that contains this data. 
+
+\includegraphics[width=10cm,height=10cm,keepaspectratio]{accomodates.png}
+
+#### Calendar
+
+The following graphs look at the variance of our response variable. 
 
 \includegraphics[width=10cm,height=10cm,keepaspectratio]{avgprice.png}
 
 \includegraphics[width=10cm,height=10cm,keepaspectratio]{pricevar.png}
-
-
-#### Calendar
 
 ### Data Pre-processing
 
@@ -149,27 +156,31 @@ The following tables contain the results from our various models. The data was s
 
 We performed a statistical test (the t-test) to examine whether the mean accuracies are statistically significantly higher than the accuracies of other models.
 
-
-
 ## Discussion
 
-From our regression results, it may seem that our simple linear regression model fits slightly better on the <100 segmentation with a lower absolute RMSE. However if we look at the percentage error of the predictions, the RMSE with respective to the overall range remains comparable where the RMSE is around 15% from the smaller range (0-100) and ~13% from the other (0-200) range. Furthermore, our attempt to improve on the simple linear regression using other feature selection (Lasso and Ridge) and segmentation (CART) techniques resulted in minute changes in out testing RMSE. The Lasso and Ridge model may have simply removed redundant variables, thus not really alternating the RMSE.
+From our regression results, it may seem that our simple linear regression model fits slightly better on the <100 segmentation with a lower absolute RMSE. However if we look at the percentage error of the predictions, the RMSE respective to the overall range remains comparable where the RMSE is around 15% from the smaller range (0-100) and ~13% from the other (0-200) range. Furthermore, our attempt to improve on the simple linear regression using other feature selection (Lasso and Ridge) and segmentation (CART) techniques resulted in minute changes in out testing RMSE. The Lasso and Ridge model may have simply removed redundant variables, thus not really altering the RMSE.
 
-Yet, the linear regression does still provide inference on the importance of certain predictors from their coefficients. Unsurprisingly, we were able to find that the obvious relationships like, the neighborhood, the number of bedroom and bathrooms, whether washers and dryers were available, or whether harvard was mentioned in the listing were significant predictors in price. On the other hand, we also found more interesting predictors that were correlated to significant increases to the price such as whether the host has a profile picture or whether there is a pool or not.
+Yet, the linear regression does still provide inference on the importance of certain predictors from their coefficients. Unsurprisingly, we were able to find that the obvious relationships like, the neighborhood, the number of bedroom and bathrooms, whether washers and dryers were available were significant predictors in price. On the other hand, we also found more interesting predictors that were correlated to significant increases to the price such as whether the host has a profile picture, whether there is a pool or not and whether harvard was mentioned in the listing.
 
 With our K-nearest neighbors model, the testing RMSE were significantly worse than the basic linear regression. This could be most likely attributed to the large number of variables we have i.e. the curse of dimensionality, as the "nearest" neighbors would not be a good representation of the query point. While we tried trimming out certain variables alongside with categorical values which were not usable, we still had 26 variables left over which were still quite high. Similar to the regression results, the RMSE across the different ranges of data shows comparable precentage errors where the data with twice the range of values does have twice the RMSE.
 
-As shown above, our best models were the Random Forest Model. This could be due to the lower number of assumptions in the model, where unlike linear regression, the algorithm does not require assumptions of independence, normal distribution of data, no multicollinearity, etc. This makes it a much more suitable approach to our current dataset, which, as seen in the exploratory data analysis, are quite skewed with many correlated variables. As one would expect, the Gini index performed slightly better than the entropy since the index itself focuses more on minimizing the misclassification rate while entropy focuses more on the exploration of the data. With entropy, we discovered that the predictor which has the highest information gain ratios were zip code and cleaning fee. These made sense
+As shown above, our best models were the Random Forest Model. This could be due to the lower number of assumptions in the model, where unlike linear regression, the algorithm does not require assumptions of independence, normal distribution of data, no multicollinearity, etc. This makes it a much more suitable approach to our current dataset, which, as seen in the exploratory data analysis, is quite skewed with many correlated variables. As one would expect, the Gini index performed slightly better than the entropy since the index itself focuses more on minimizing the misclassification rate while entropy focuses more on the exploration of the data. With entropy, we discovered that the predictor which has the highest information gain ratios were zip code and cleaning fee. 
 
-In terms of future work, there are definitely parts that could be improved upon. Our feature generations were quite simple and not too rigorous in nature. The binary flags that we created were only dependent on whether the word appeared frequently and whether we thought it would be important or not. Further improvement could be made by looking at important keywords from trained corpus which prove to be more rigorous than selecting them ourselves. If given the time and availablity of labelled data, we could also have tried to train our own corpus on housing reviews for the sentiment analysis which would have been more specific in nature. Similarly this could also be extended to training corpuses for other languages in order to be able to incorporate more data.
+In terms of future work, there are definitely parts that could be improved or expanded upon. Our feature generation techniques were quite simple and not too rigorous in nature. The binary flags that we created were only dependent on whether the word appeared frequently and whether we thought it would be important or not. Further improvement could be made by looking at important keywords from trained corpus which prove to be more rigorous than selecting them ourselves. If given the time and availablity of labelled data, we could also have tried to train our own corpus on housing reviews for the sentiment analysis which would have been more specific in nature. Similarly this could also be extended to training corpuses for other languages in order to be able to incorporate more data.
 
 Another large issue that we could have tackled would be to study the changes in price over time and its relation to seasonal effects since our exploratory data does show that there are variations over different months as well as a general increasing trend over time. These would also have to account for certain spikes due to festivals and long holiday weekends.
 
 ## Conclusions
 
+Our models do pretty well overall. They are comparable to results on Kaggle. We have also identified key words for landlords to include in their descriptions and aspects of the property that increase rent. 
+
+We are satisfied with our results and think they can be used to model other cities as well. 
+
 \newpage
 
 # Appendices
+
+Our code is stored on github at https://github.com/shoili/airbnb_MLproj. Some of the key pieces of code are reproduced below. 
 
 ### Binary Features
 
