@@ -6,3 +6,5 @@ This project uses the Boston Airbnb data available on https://www.kaggle.com/air
 We use linear regression models and random forests to build the prediction model. Feature generation is done using sentiment analysis on the reviews and building binary features for whether some key words exist in the reviews, description of the properties etc. Feature selection is done using a variety of methods like LASSO and ridge. 
 
 We decided to predict the average price of the listings. Further analysis can be performed to identify trends of how price varies over time. 
+
+Check out https://github.com/shoili/airbnb_MLproj/blob/master/report.pdf for full report. 
